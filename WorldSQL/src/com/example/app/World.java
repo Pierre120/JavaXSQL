@@ -20,48 +20,38 @@ public class World {
     private static final String USER = "root";
     private static final String PASSWORD = "12345678";
     
-    private static Connection conn = null;
+//    private static Connection conn = null;
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        try {
-            System.out.println("Testing DB Connection...");
-            connectDB();
-            getCountryLanguageStmt();
-            conn.close();
-            System.out.println("Closed DB Connection");
+        System.out.println("Testing DB Connection...");
+        
+        // try-with-resources
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASSWORD);) {
+            System.out.println("Connected to World DB!");
+            getCountryLanguageStmt(conn);
         }
         catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
-    }
-    
-    public static void connectDB() {
-        try {
-            conn = DriverManager.getConnection(DB_URL, USER, PASSWORD);
-            System.out.println("Connected to World DB!");
-        } catch (SQLException ex) {
-            System.getLogger(World.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        finally {
+            System.out.println("Closed DB Connection");
         }
     }
     
-    public static void getCountryLanguageStmt() {
+    public static void getCountryLanguageStmt(Connection conn) {
         StringBuilder query = new StringBuilder();
         query.append(" SELECT  *                   ");
         query.append(" FROM    CountryLanguage     ");
         query.append(" WHERE   CountryCode = 'PHL' ");
         query.append("     AND IsOfficial = 'F'    ");
         
-        Statement stmt = null;
-        ResultSet rs = null;
-        
-        try {
-            stmt = conn.createStatement();
+        // try-with-resources
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query.toString())) {
             System.out.println("Created Statement");
-            
-            rs = stmt.executeQuery(query.toString());
             System.out.println("Created ResultSet");
             
             System.out.println("\nCountryCode, Language, IsOfficial, Percentage");
@@ -78,30 +68,15 @@ public class World {
             
             System.out.println();
         }
-        catch(SQLException sqlE) {
+        catch (SQLException sqlE) {
             System.out.println(sqlE.getMessage());
         }
+        catch (NullPointerException nullE) {
+            System.out.println(nullE.getMessage());
+        }
         finally {
-            // Manual cleanup or closing
-            if (rs != null) {
-                try {
-                    rs.close();
-                    System.out.println("Closed ResultSet");
-                }
-                catch (SQLException sqlE) {
-                    System.out.println(sqlE.getMessage());
-                }
-            }
-            
-            if (stmt != null) {
-                try {
-                    stmt.close();
-                    System.out.println("Closed Statement");
-                }
-                catch (SQLException sqlE) {
-                    System.out.println(sqlE.getMessage());
-                }
-            }
+            System.out.println("Closed ResultSet");
+            System.out.println("Closed Statement");
         }
     }
     
