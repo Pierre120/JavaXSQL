@@ -4,6 +4,7 @@
  */
 package com.expensetracker;
 
+import com.expensetracker.model.User;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -25,12 +26,25 @@ public class ExpenseTracker {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASSWORD);) {
-            String username = "user0";
-            String password = "user@123";
-            verifyUserStmt(conn, username, password);
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASSWORD)) {
+            User user = null;
+            String newUsername = "userTest";
+            String initPassword = "user@123";
+            String newPassword = "user@456";
+            
+            createUser(conn, newUsername, initPassword);
+            user = getUserByUsername(conn, newUsername);
+            System.out.println("User: " + user.getId() + ", " + user.getUsername());
+            int userId = user.getId();
+            user = null;
+            System.out.println("User: " + user);
+            user = getUserById(conn, userId);
+            System.out.println("User: " + user.getId() + ", " + user.getUsername());
+            updateUser(conn, user, newPassword);
+//            deleteUserById(conn, user.getId());
+            deleteUserByUsername(conn, user.getUsername());
+            
             System.out.println();
-            verifyUserPrepStmt(conn, username, password);
         }
         catch (SQLException ex) {
             System.out.println(ex.getMessage());
@@ -89,6 +103,147 @@ public class ExpenseTracker {
         }
         catch (SQLException ex) {
             System.out.println(ex.getMessage());
+        }
+        catch (NullPointerException nullE) {
+            System.out.println(nullE.getMessage());
+        }
+    }
+    
+    public static void createUser(Connection conn, String uqUsername, String password) {
+        StringBuilder query = new StringBuilder();
+        query.append(" INSERT INTO user (username, password) ");
+        query.append(" VALUES (?, ?)                         ");
+        
+        System.out.println("--- createUser");
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+            pstmt.setString(1, uqUsername);
+            pstmt.setString(2, password);
+            pstmt.executeUpdate();
+        }
+        catch (SQLException sqlE) {
+            System.out.println(sqlE.getMessage());
+        }
+        catch (NullPointerException nullE) {
+            System.out.println(nullE.getMessage());
+        }
+    }
+    
+    public static User getUserById(Connection conn, int id) {
+        StringBuilder query = new StringBuilder();
+        query.append(" SELECT  user_id, username ");
+        query.append(" FROM    user              ");
+        query.append(" WHERE   user_id = ?       ");
+        
+        System.out.println("--- getUserById");
+        
+        User user = null;
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+            pstmt.setInt(1, id);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    user = new User();
+                    user.setId(rs.getInt("user_id"));
+                    user.setUsername(rs.getString("username"));
+                }
+            }
+        }
+        catch (SQLException sqlE) {
+            System.out.println(sqlE.getMessage());
+        }
+        catch (NullPointerException nullE) {
+            System.out.println(nullE.getMessage());
+        }
+        
+        return user;
+    }
+    
+    public static User getUserByUsername(Connection conn, String uqUsername) {
+        StringBuilder query = new StringBuilder();
+        query.append(" SELECT  user_id, username ");
+        query.append(" FROM    user              ");
+        query.append(" WHERE   username = ?      ");
+        
+        System.out.println("--- getUserByUsername");
+        
+        User user = null;
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+            pstmt.setString(1, uqUsername);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    user = new User();
+                    user.setId(rs.getInt("user_id"));
+                    user.setUsername(rs.getString("username"));
+                }
+            }
+        }
+        catch (SQLException sqlE) {
+            System.out.println(sqlE.getMessage());
+        }
+        catch (NullPointerException nullE) {
+            System.out.println(nullE.getMessage());
+        }
+        
+        return user;
+    }
+    
+    public static void updateUser(Connection conn, User user, String newPassword) {
+        StringBuilder query = new StringBuilder();
+        query.append(" UPDATE  user         ");
+        query.append(" SET     password = ? ");
+        query.append(" WHERE   user_id = ?  ");
+        
+        System.out.println("--- updateUser");
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+            pstmt.setString(1, newPassword);
+            pstmt.setInt(2, user.getId());
+            pstmt.executeUpdate();
+        }
+        catch (SQLException sqlE) {
+            System.out.println(sqlE.getMessage());
+        }
+        catch (NullPointerException nullE) {
+            System.out.println(nullE.getMessage());
+        }
+    }
+    
+    public static void deleteUserById(Connection conn, int id) {
+        StringBuilder query = new StringBuilder();
+        query.append(" DELETE FROM user  ");
+        query.append(" WHERE user_id = ? ");
+        
+        System.out.println("--- deleteUserById");
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+            pstmt.setInt(1, id);
+            pstmt.executeUpdate();
+        }
+        catch (SQLException sqlE) {
+            System.out.println(sqlE.getMessage());
+        }
+        catch (NullPointerException nullE) {
+            System.out.println(nullE.getMessage());
+        }
+    }
+    
+    public static void deleteUserByUsername(Connection conn, String uqUsername) {
+        StringBuilder query = new StringBuilder();
+        query.append(" DELETE FROM user  ");
+        query.append(" WHERE username = ? ");
+        
+        System.out.println("--- deleteUserByUsername");
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+            pstmt.setString(1, uqUsername);
+            pstmt.executeUpdate();
+        }
+        catch (SQLException sqlE) {
+            System.out.println(sqlE.getMessage());
         }
         catch (NullPointerException nullE) {
             System.out.println(nullE.getMessage());

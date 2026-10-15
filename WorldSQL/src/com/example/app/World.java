@@ -29,7 +29,7 @@ public class World {
         System.out.println("Testing DB Connection...");
         
         // try-with-resources
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASSWORD);) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASSWORD)) {
             System.out.println("Connected to World DB!");
             getCountryLanguageStmt(conn);
         }
