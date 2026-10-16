@@ -4,7 +4,7 @@
  */
 package com.expensetracker;
 
-import com.expensetracker.model.User;
+import com.expensetracker.model.entities.User;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -41,8 +41,8 @@ public class ExpenseTracker {
             user = getUserById(conn, userId);
             System.out.println("User: " + user.getId() + ", " + user.getUsername());
             updateUser(conn, user, newPassword);
-//            deleteUserById(conn, user.getId());
-            deleteUserByUsername(conn, user.getUsername());
+            deleteUserById(conn, user.getId());
+//            deleteUserByUsername(conn, user.getUsername());
             
             System.out.println();
         }
