@@ -35,6 +35,29 @@ public class ExpenseTracker {
             ExpenseCategory expCat = expCatDao.getExpenseCategoryById("MISC");
             
             System.out.println(expCat);
+            
+            // -- HANDS-ON Main priority
+            // TODO:
+            // 1.) User java object or entity
+            // 2.) UserDao
+            // 3.) UserDaoImpl -- include in DaoFactory
+            // 4.) Perform tests in main class -- this class
+            
+            
+            // User acceptance Tests 
+            // 1.) Create user
+            // 2.) Get user
+            // 3.) Update user password
+            // 4.) Set to Null user object then get user again to check updated password
+            // 5.) Delete user either id or username
+            
+            
+            
+            // Extra TODO -- low priority
+            // 1.) Expense java object or entity
+            // 2.) ExpenseDao
+            // 3.) ExpenseDaoImpl -- include in DaoFactory
+            // 4.) Perform tests in main class -- this class
         }
         catch (SQLException ex) {
             System.out.println(ex.getMessage());
