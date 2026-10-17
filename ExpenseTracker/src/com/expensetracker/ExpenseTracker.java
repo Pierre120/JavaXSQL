@@ -4,7 +4,10 @@
  */
 package com.expensetracker;
 
+import com.expensetracker.model.dao.DaoFactory;
+import com.expensetracker.model.dao.ExpenseCategoryDao;
 import com.expensetracker.model.entities.User;
+import com.expensetracker.model.entities.ExpenseCategory;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -27,24 +30,11 @@ public class ExpenseTracker {
      */
     public static void main(String[] args) {
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASSWORD)) {
-            User user = null;
-            String newUsername = "userTest";
-            String initPassword = "user@123";
-            String newPassword = "user@456";
+            ExpenseCategoryDao expCatDao = DaoFactory.createExpenseCategoryDao(conn);
             
-            createUser(conn, newUsername, initPassword);
-            user = getUserByUsername(conn, newUsername);
-            System.out.println("User: " + user.getId() + ", " + user.getUsername());
-            int userId = user.getId();
-            user = null;
-            System.out.println("User: " + user);
-            user = getUserById(conn, userId);
-            System.out.println("User: " + user.getId() + ", " + user.getUsername());
-            updateUser(conn, user, newPassword);
-            deleteUserById(conn, user.getId());
-//            deleteUserByUsername(conn, user.getUsername());
+            ExpenseCategory expCat = expCatDao.getExpenseCategoryById("MISC");
             
-            System.out.println();
+            System.out.println(expCat);
         }
         catch (SQLException ex) {
             System.out.println(ex.getMessage());

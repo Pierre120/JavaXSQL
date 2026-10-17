@@ -4,10 +4,15 @@
  */
 package com.expensetracker.model.dao;
 
+import java.sql.Connection;
+import com.expensetracker.model.dao.impl.ExpenseCategoryDaoImpl;
+
 /**
  *
  * @author pierre
  */
 public class DaoFactory {
-    
+    public static ExpenseCategoryDao createExpenseCategoryDao(Connection conn) {
+        return new ExpenseCategoryDaoImpl(conn);
+    }
 }
